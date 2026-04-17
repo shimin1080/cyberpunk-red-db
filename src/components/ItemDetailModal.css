@@ -41,6 +41,9 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  padding: 24px;
+  padding-top: 48px; /* クロスボタンと被らないように上部余白を多めに */
+  box-sizing: border-box;
   filter: grayscale(10%) contrast(1.1);
 }
 
