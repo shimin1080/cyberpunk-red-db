@@ -1,0 +1,107 @@
+.item-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.item-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--neon-red);
+  opacity: 0.8;
+}
+
+.item-card:hover {
+  border-color: var(--neon-red);
+  box-shadow: 0 0 15px rgba(255, 42, 42, 0.2);
+  transform: translateY(-2px);
+}
+
+.item-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.item-card-header h3 {
+  color: var(--neon-red);
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+
+.category-badge {
+  background: rgba(0, 221, 255, 0.1);
+  color: var(--neon-cyan);
+  border: 1px solid var(--neon-cyan);
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-family: 'Share Tech Mono', monospace;
+  white-space: nowrap;
+}
+
+.item-price {
+  color: var(--neon-yellow);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+}
+
+.item-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  flex-grow: 1;
+}
+
+.item-stats {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px;
+  border-left: 2px solid var(--neon-cyan);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.stat-row:last-child {
+  margin-bottom: 0;
+}
+
+.stat-key {
+  color: var(--text-muted);
+}
+
+.stat-value {
+  color: var(--neon-cyan);
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.item-actions .btn {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  padding: 6px;
+}
