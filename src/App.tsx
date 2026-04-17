@@ -5,6 +5,7 @@ import { ItemCard } from './components/ItemCard';
 import { ItemFormModal } from './components/ItemFormModal';
 import { CategoryManageModal } from './components/CategoryManageModal';
 import { ConfirmModal } from './components/ConfirmModal';
+import { ItemDetailModal } from './components/ItemDetailModal';
 import { FaPlus, FaSearch, FaList } from 'react-icons/fa';
 import { db } from './firebase';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, writeBatch } from 'firebase/firestore';
@@ -19,6 +20,7 @@ const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [viewingItem, setViewingItem] = useState<Item | null>(null);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -200,6 +202,7 @@ const App: React.FC = () => {
               <ItemCard 
                 key={item.id} 
                 item={item} 
+                onView={(i) => setViewingItem(i)}
                 onEdit={openEditModal} 
                 onDelete={handleDeleteItem} 
               />
@@ -207,6 +210,12 @@ const App: React.FC = () => {
           )}
         </div>
       </main>
+
+      <ItemDetailModal 
+        item={viewingItem}
+        isOpen={!!viewingItem}
+        onClose={() => setViewingItem(null)}
+      />
 
       <ItemFormModal 
         isOpen={isModalOpen}

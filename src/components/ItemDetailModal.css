@@ -1,0 +1,121 @@
+.detail-modal-content {
+  max-width: 600px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: var(--neon-cyan);
+  color: #000;
+  transform: rotate(90deg);
+}
+
+.detail-image-container {
+  width: 100%;
+  height: 250px;
+  position: relative;
+  border-bottom: 2px solid var(--neon-cyan);
+}
+
+.detail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(10%) contrast(1.1);
+}
+
+.detail-image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(0deg, var(--bg-panel) 0%, rgba(10,10,12,0) 100%);
+  pointer-events: none;
+}
+
+.detail-header {
+  padding: 24px 24px 8px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.detail-header h2 {
+  margin: 0;
+  color: var(--neon-red);
+  font-size: 1.8rem;
+}
+
+.detail-price {
+  padding: 0 24px 16px 24px;
+  color: var(--neon-yellow);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.2rem;
+  border-bottom: 1px dashed rgba(0, 221, 255, 0.3);
+}
+
+.detail-section {
+  padding: 16px 24px;
+}
+
+.detail-section h4 {
+  color: var(--neon-cyan);
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.detail-desc {
+  color: var(--text-main);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.detail-stats {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  border: 1px solid rgba(0, 221, 255, 0.2);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.detail-stats .stat-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+  border-left: 2px solid var(--neon-cyan);
+  padding-left: 8px;
+}
+
+.detail-stats .stat-key {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-bottom: 2px;
+}
+
+.detail-stats .stat-value {
+  color: var(--neon-yellow);
+  font-size: 1.1rem;
+}

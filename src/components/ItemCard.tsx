@@ -5,13 +5,16 @@ import './ItemCard.css';
 
 interface Props {
   item: Item;
+  onView: (item: Item) => void;
   onEdit: (item: Item) => void;
   onDelete: (id: string) => void;
 }
 
-export const ItemCard: React.FC<Props> = ({ item, onEdit, onDelete }) => {
+export const ItemCard: React.FC<Props> = ({ item, onView, onEdit, onDelete }) => {
+  const shortDescription = item.description.split('\n')[0];
+
   return (
-    <div className="item-card">
+    <div className="item-card clickable" onClick={() => onView(item)}>
       {item.imageUrl && (
         <div className="item-image-container">
           <img src={item.imageUrl} alt={item.name} className="item-image" />
@@ -23,7 +26,10 @@ export const ItemCard: React.FC<Props> = ({ item, onEdit, onDelete }) => {
         <span className="category-badge">{item.category}</span>
       </div>
       <div className="item-price">{item.price}</div>
-      <div className="item-desc">{item.description}</div>
+      <div className="item-desc">
+        {shortDescription}
+        {item.description.includes('\n') ? '...' : ''}
+      </div>
       
       {item.stats && Object.keys(item.stats).length > 0 && (
         <div className="item-stats">
@@ -37,8 +43,8 @@ export const ItemCard: React.FC<Props> = ({ item, onEdit, onDelete }) => {
       )}
 
       <div className="item-actions">
-        <button className="btn" onClick={() => onEdit(item)}><FaEdit /> Edit</button>
-        <button className="btn danger" onClick={() => onDelete(item.id)}><FaTrash /> Delete</button>
+        <button className="btn" onClick={(e) => { e.stopPropagation(); onEdit(item); }}><FaEdit /> Edit</button>
+        <button className="btn danger" onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}><FaTrash /> Delete</button>
       </div>
     </div>
   );
