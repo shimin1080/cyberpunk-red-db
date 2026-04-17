@@ -23,7 +23,6 @@ export const ItemCard: React.FC<Props> = ({ item, onView, onEdit, onDelete }) =>
       {item.imageUrl && (
         <div className="item-image-container">
           <img src={item.imageUrl} alt={item.name} className="item-image" />
-          <div className="item-image-overlay"></div>
         </div>
       )}
       <div className="item-card-header">

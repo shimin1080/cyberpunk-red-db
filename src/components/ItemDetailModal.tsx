@@ -20,7 +20,6 @@ export const ItemDetailModal: React.FC<Props> = ({ item, isOpen, onClose }) => {
         {item.imageUrl && (
           <div className="detail-image-container">
             <img src={item.imageUrl} alt={item.name} className="detail-image" />
-            <div className="detail-image-overlay"></div>
           </div>
         )}
         
