@@ -11,7 +11,12 @@ interface Props {
 }
 
 export const ItemCard: React.FC<Props> = ({ item, onView, onEdit, onDelete }) => {
-  const shortDescription = item.description.split('\n')[0];
+  let shortDescription = item.description.split('\n')[0];
+  if (shortDescription.length > 18) {
+    shortDescription = shortDescription.substring(0, 18) + '...';
+  } else if (item.description.includes('\n')) {
+    shortDescription += '...';
+  }
 
   return (
     <div className="item-card clickable" onClick={() => onView(item)}>
@@ -28,7 +33,6 @@ export const ItemCard: React.FC<Props> = ({ item, onView, onEdit, onDelete }) =>
       <div className="item-price">{item.price}</div>
       <div className="item-desc">
         {shortDescription}
-        {item.description.includes('\n') ? '...' : ''}
       </div>
       
       {item.stats && Object.keys(item.stats).length > 0 && (
