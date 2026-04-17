@@ -91,9 +91,14 @@ export const ItemFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, editin
       category: formData.category as ItemCategory || 'Gear',
       price: formData.price || '0eb',
       description: formData.description || '',
-      stats: Object.keys(parsedStats).length > 0 ? parsedStats : undefined,
-      imageUrl: formData.imageUrl || undefined
     };
+
+    if (Object.keys(parsedStats).length > 0) {
+      newItem.stats = parsedStats;
+    }
+    if (formData.imageUrl) {
+      newItem.imageUrl = formData.imageUrl;
+    }
 
     onSave(newItem);
   };
