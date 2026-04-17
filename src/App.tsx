@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Item, ItemCategory } from './types';
-import { INITIAL_DATA, INITIAL_CATEGORIES } from './data';
+import { INITIAL_CATEGORIES } from './data';
 import { ItemCard } from './components/ItemCard';
 import { ItemFormModal } from './components/ItemFormModal';
 import { CategoryManageModal } from './components/CategoryManageModal';
 import { ConfirmModal } from './components/ConfirmModal';
 import { FaPlus, FaSearch, FaList } from 'react-icons/fa';
+import { db } from './firebase';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, writeBatch } from 'firebase/firestore';
 import './App.css';
 
 const App: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>(INITIAL_CATEGORIES);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | 'All'>('All');
   
@@ -19,45 +21,49 @@ const App: React.FC = () => {
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-  // Load from local storage or use initial data
-  useEffect(() => {
-    const savedItems = localStorage.getItem('cyberpunk_red_items');
-    if (savedItems && savedItems !== '[]') {
-      setItems(JSON.parse(savedItems));
-    } else {
-      setItems(INITIAL_DATA);
-      localStorage.setItem('cyberpunk_red_items', JSON.stringify(INITIAL_DATA));
-    }
+  const [loading, setLoading] = useState(true);
 
-    const savedCategories = localStorage.getItem('cyberpunk_red_categories');
-    if (savedCategories && savedCategories !== '[]') {
-      setCategories(JSON.parse(savedCategories));
-    } else {
-      setCategories(INITIAL_CATEGORIES);
-      localStorage.setItem('cyberpunk_red_categories', JSON.stringify(INITIAL_CATEGORIES));
-    }
+  // Initialize Firestore and Listen for changes
+  useEffect(() => {
+    // Check and initialize categories if empty
+    const initCategories = async () => {
+      const catRef = doc(db, 'settings', 'categories');
+      const docSnap = await getDoc(catRef);
+      if (!docSnap.exists()) {
+        await setDoc(catRef, { list: INITIAL_CATEGORIES });
+      }
+    };
+    initCategories();
+
+    // Listen for items
+    const itemsRef = collection(db, 'items');
+    const unsubscribeItems = onSnapshot(itemsRef, (snapshot) => {
+      const fetchedItems: Item[] = [];
+      snapshot.forEach((docSnap) => {
+        fetchedItems.push({ id: docSnap.id, ...docSnap.data() } as Item);
+      });
+      setItems(fetchedItems);
+      setLoading(false);
+    });
+
+    // Listen for categories
+    const catRef = doc(db, 'settings', 'categories');
+    const unsubscribeCat = onSnapshot(catRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setCategories(docSnap.data().list);
+      }
+    });
+
+    return () => {
+      unsubscribeItems();
+      unsubscribeCat();
+    };
   }, []);
 
-  // Save to local storage whenever data changes
-  useEffect(() => {
-    if (items.length > 0) {
-      localStorage.setItem('cyberpunk_red_items', JSON.stringify(items));
-    }
-  }, [items]);
-
-  useEffect(() => {
-    if (categories.length > 0) {
-      localStorage.setItem('cyberpunk_red_categories', JSON.stringify(categories));
-    }
-  }, [categories]);
-
   // Item Handlers
-  const handleSaveItem = (newItem: Item) => {
-    if (editingItem) {
-      setItems(items.map(item => item.id === newItem.id ? newItem : item));
-    } else {
-      setItems([newItem, ...items]);
-    }
+  const handleSaveItem = async (newItem: Item) => {
+    const itemRef = doc(db, 'items', newItem.id);
+    await setDoc(itemRef, newItem);
     setIsModalOpen(false);
     setEditingItem(null);
   };
@@ -66,9 +72,9 @@ const App: React.FC = () => {
     setItemToDelete(id);
   };
 
-  const executeDeleteItem = () => {
+  const executeDeleteItem = async () => {
     if (itemToDelete) {
-      setItems(items.filter(item => item.id !== itemToDelete));
+      await deleteDoc(doc(db, 'items', itemToDelete));
       setItemToDelete(null);
     }
   };
@@ -84,21 +90,42 @@ const App: React.FC = () => {
   };
 
   // Category Handlers
-  const handleAddCategory = (cat: string) => {
-    setCategories([...categories, cat]);
+  const handleAddCategory = async (cat: string) => {
+    const newCats = [...categories, cat];
+    await setDoc(doc(db, 'settings', 'categories'), { list: newCats });
   };
 
-  const handleEditCategory = (oldCat: string, newCat: string) => {
-    setCategories(categories.map(c => c === oldCat ? newCat : c));
-    setItems(items.map(item => item.category === oldCat ? { ...item, category: newCat } : item));
+  const handleEditCategory = async (oldCat: string, newCat: string) => {
+    const newCats = categories.map(c => c === oldCat ? newCat : c);
+    await setDoc(doc(db, 'settings', 'categories'), { list: newCats });
+    
+    // Update all items
+    const batch = writeBatch(db);
+    items.forEach(item => {
+      if (item.category === oldCat) {
+        batch.update(doc(db, 'items', item.id), { category: newCat });
+      }
+    });
+    await batch.commit();
+
     if (selectedCategory === oldCat) {
       setSelectedCategory(newCat);
     }
   };
 
-  const handleDeleteCategory = (cat: string) => {
-    setCategories(categories.filter(c => c !== cat));
-    setItems(items.map(item => item.category === cat ? { ...item, category: 'Uncategorized' } : item));
+  const handleDeleteCategory = async (cat: string) => {
+    const newCats = categories.filter(c => c !== cat);
+    await setDoc(doc(db, 'settings', 'categories'), { list: newCats });
+    
+    // Update all items
+    const batch = writeBatch(db);
+    items.forEach(item => {
+      if (item.category === cat) {
+        batch.update(doc(db, 'items', item.id), { category: 'Uncategorized' });
+      }
+    });
+    await batch.commit();
+
     if (selectedCategory === cat) {
       setSelectedCategory('All');
     }
@@ -119,6 +146,9 @@ const App: React.FC = () => {
       <header className="app-header">
         <h1 className="glitch" data-text="CYBERPUNK RED DB">CYBERPUNK RED DB</h1>
         <p className="subtitle cyber-font">UNOFFICIAL ITEM DATABASE</p>
+        <div style={{ color: 'var(--neon-yellow)', fontSize: '0.8rem', marginTop: '8px' }}>
+          {loading ? 'SYNCING DATABASE...' : 'DATABASE SYNCED'}
+        </div>
       </header>
 
       <main className="main-content">
@@ -161,16 +191,19 @@ const App: React.FC = () => {
         </div>
 
         <div className="items-grid">
-          {filteredItems.map(item => (
-            <ItemCard 
-              key={item.id} 
-              item={item} 
-              onEdit={openEditModal} 
-              onDelete={handleDeleteItem} 
-            />
-          ))}
-          {filteredItems.length === 0 && (
+          {loading && items.length === 0 ? (
+            <div className="no-results cyber-font">CONNECTING TO MAINFRAME...</div>
+          ) : filteredItems.length === 0 ? (
             <div className="no-results cyber-font">NO ITEMS FOUND.</div>
+          ) : (
+            filteredItems.map(item => (
+              <ItemCard 
+                key={item.id} 
+                item={item} 
+                onEdit={openEditModal} 
+                onDelete={handleDeleteItem} 
+              />
+            ))
           )}
         </div>
       </main>
