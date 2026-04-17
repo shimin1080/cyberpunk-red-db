@@ -12,6 +12,12 @@ interface Props {
 export const ItemCard: React.FC<Props> = ({ item, onEdit, onDelete }) => {
   return (
     <div className="item-card">
+      {item.imageUrl && (
+        <div className="item-image-container">
+          <img src={item.imageUrl} alt={item.name} className="item-image" />
+          <div className="item-image-overlay"></div>
+        </div>
+      )}
       <div className="item-card-header">
         <h3 className="cyber-font">{item.name}</h3>
         <span className="category-badge">{item.category}</span>

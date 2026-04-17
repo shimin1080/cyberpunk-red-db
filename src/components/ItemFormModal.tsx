@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Item, ItemCategory } from '../types';
 import { v4 as uuidv4 } from 'uuid';
+import { compressImage } from '../utils/image';
 import './ItemFormModal.css';
 
 interface Props {
@@ -17,10 +18,12 @@ export const ItemFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, editin
     category: 'Weapon',
     price: '',
     description: '',
-    stats: {}
+    stats: {},
+    imageUrl: ''
   });
   
   const [statsInput, setStatsInput] = useState<string>('');
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   useEffect(() => {
     if (editingItem) {
@@ -34,15 +37,18 @@ export const ItemFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, editin
       } else {
         setStatsInput('');
       }
+      setImagePreview(editingItem.imageUrl || '');
     } else {
       setFormData({
         name: '',
         category: 'Weapon',
         price: '',
         description: '',
-        stats: {}
+        stats: {},
+        imageUrl: ''
       });
       setStatsInput('');
+      setImagePreview('');
     }
   }, [editingItem, isOpen]);
 
@@ -50,6 +56,20 @@ export const ItemFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, editin
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      try {
+        const compressedBase64 = await compressImage(file);
+        setImagePreview(compressedBase64);
+        setFormData(prev => ({ ...prev, imageUrl: compressedBase64 }));
+      } catch (error) {
+        console.error('Image compression failed', error);
+        alert('画像の読み込みに失敗しました。');
+      }
+    }
   };
 
   const handleSave = () => {
@@ -71,7 +91,8 @@ export const ItemFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, editin
       category: formData.category as ItemCategory || 'Gear',
       price: formData.price || '0eb',
       description: formData.description || '',
-      stats: Object.keys(parsedStats).length > 0 ? parsedStats : undefined
+      stats: Object.keys(parsedStats).length > 0 ? parsedStats : undefined,
+      imageUrl: formData.imageUrl || undefined
     };
 
     onSave(newItem);
@@ -107,6 +128,12 @@ export const ItemFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, editin
         <div className="form-group">
           <label>Stats (Optional) - format "key:value" per line</label>
           <textarea className="input-field" value={statsInput} onChange={(e) => setStatsInput(e.target.value)} placeholder="damage:3d6&#10;rof:2" rows={3} />
+        </div>
+
+        <div className="form-group">
+          <label>Image (Optional)</label>
+          <input type="file" accept="image/*" className="file-input" onChange={handleImageChange} />
+          {imagePreview && <img src={imagePreview} alt="Preview" className="image-upload-preview" />}
         </div>
 
         <div className="modal-actions">

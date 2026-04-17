@@ -75,3 +75,32 @@
   flex: 1;
   padding: 12px;
 }
+
+.image-upload-preview {
+  margin-top: 8px;
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border: 1px solid var(--neon-cyan);
+  background: rgba(0, 221, 255, 0.05);
+}
+
+.file-input {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  background: var(--bg-dark);
+  color: var(--neon-cyan);
+  border: 1px dashed var(--neon-cyan);
+  cursor: pointer;
+}
+.file-input::-webkit-file-upload-button {
+  background: var(--neon-cyan);
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  margin-right: 16px;
+  cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-weight: bold;
+}

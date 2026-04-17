@@ -6,6 +6,7 @@ export interface BaseItem {
   category: ItemCategory;
   price: string;
   description: string;
+  imageUrl?: string;
 }
 
 export interface Item extends BaseItem {
